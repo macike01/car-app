@@ -87,7 +87,8 @@ main {
   justify-content: center;
   min-height: 60vh;
   text-align: center;
-  background: url('cached_assets_used/4d68560e-d6f1-42d7-a754-8e6651491c7f.png') center/cover no-repeat;
+  /* Updated hero background to showcase the Košice region */
+  background: url('cached_assets_used/hero_kosice.png') center/cover no-repeat;
   border-radius: var(--border-radius);
   margin-bottom: 2rem;
   color: #fff;
