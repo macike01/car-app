@@ -1,7 +1,7 @@
 // Admin page script for managing clubs using Supabase
 
 // Replace these placeholders with your Supabase project credentials.
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_URL = 'https://muovvomzkjdrlbargyve.supabase.co';
 const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
 // Initialise the Supabase client. The supabase global is provided by the CDN script in admin.html.
