@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clubs – Car Crew</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p1BsZtnDOr+j1Y8gJtXlkBrcgzHa7cvqvMHPm7guL+Yry3zMk6M64CFw6Ui/jQKWMJZMXjae2Rnxw8oII+zE0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-left">
+      <a href="index.html" class="logo">Car Crew</a>
+    </div>
+    <nav class="nav-links">
+      <a href="profile.html">Profile</a>
+      <a href="ride.html">Ride</a>
+      <a href="clubs.html" class="active">Clubs</a>
+      <a href="explore.html">Explore</a>
+      <a href="leaderboard.html">Leaderboard</a>
+      <a href="blog.html">Blog</a>
+    </nav>
+  </header>
+  <main>
+    <h1 class="section-title">Clubs & Events</h1>
+    <p style="text-align:center; max-width:600px; margin:0 auto; color:var(--muted); margin-bottom:1.5rem;">
+      Find like‑minded drivers, join a club or create your own. Earn points when you
+      join or host events!
+    </p>
+    <div class="cards-grid" id="clubsContainer"></div>
+    <div class="create-club" style="margin-top:2rem; text-align:center;">
+      <h2>Create a New Club</h2>
+      <form id="createClubForm" style="max-width:400px; margin:0 auto;">
+        <input type="text" id="clubName" placeholder="Club Name" required style="width:100%; padding:0.5rem; margin-bottom:0.5rem; border:1px solid #d1d5db; border-radius: var(--border-radius);" />
+        <textarea id="clubDesc" placeholder="Description" required style="width:100%; padding:0.5rem; margin-bottom:0.5rem; border:1px solid #d1d5db; border-radius: var(--border-radius); resize: vertical;"></textarea>
+        <button type="submit" class="btn primary">Create Club</button>
+      </form>
+    </div>
+  </main>
+  <footer>
+    <p>&copy; 2025 Car Crew Network</p>
+  </footer>
+  <script src="script.js"></script>
+  <script>
+    (function() {
+      // Predefined clubs
+      const predefined = [
+        { name: 'Mountain Cruisers', desc: 'Explore winding mountain roads with a friendly crew.', img: 'cached_assets_used/4d68560e-d6f1-42d7-a754-8e6651491c7f.png' },
+        { name: 'City Night Riders', desc: 'Night drives through the city with neon lights and music.', img: 'cached_assets_used/7fc5bebc-a8a9-4ac1-a387-0667c2f73d82.png' },
+        { name: 'Coastal Explorers', desc: 'Experience scenic coastal routes and seaside stops.', img: 'cached_assets_used/0689dae2-fb9e-4f98-b8f1-b8333a338035.png' }
+      ];
+      const container = document.getElementById('clubsContainer');
+      function renderClubs() {
+        container.innerHTML = '';
+        const user = window.carCrew.getUser();
+        // merge user-created clubs into a single list without duplicates
+        const created = user.clubs
+          .filter((clubName) => !predefined.some((c) => c.name === clubName))
+          .map((name) => ({ name, desc: 'A club created by you', img: 'cached_assets_used/0689dae2-fb9e-4f98-b8f1-b8333a338035.png' }));
+        const allClubs = [...predefined, ...created];
+        allClubs.forEach((club) => {
+          const joined = user.clubs.includes(club.name);
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <img src="${club.img}" alt="${club.name}" />
+            <div class="card-content">
+              <h3>${club.name}</h3>
+              <p>${club.desc}</p>
+              <button class="btn ${joined ? 'completed' : 'secondary'}" ${joined ? 'disabled' : ''}>${joined ? 'Joined' : 'Join'}</button>
+            </div>
+          `;
+          const btn = card.querySelector('button');
+          btn.addEventListener('click', () => {
+            window.carCrew.joinClub(club.name);
+            alert(`You joined ${club.name}! +50 points`);
+            renderClubs();
+          });
+          container.appendChild(card);
+        });
+      }
+      renderClubs();
+      // Create club form
+      const createForm = document.getElementById('createClubForm');
+      createForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('clubName').value.trim();
+        const desc = document.getElementById('clubDesc').value.trim();
+        if (!name) return;
+        // Save to user's club list via joinClub which also awards points
+        window.carCrew.joinClub(name);
+        alert(`Club "${name}" created and joined! +50 points`);
+        // Add to clubs list for display (desc just for this session)
+        renderClubs();
+        // reset form
+        createForm.reset();
+      });
+    })();
+  </script>
+</body>
+</html>

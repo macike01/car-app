@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leaderboard – Car Crew</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p1BsZtnDOr+j1Y8gJtXlkBrcgzHa7cvqvMHPm7guL+Yry3zMk6M64CFw6Ui/jQKWMJZMXjae2Rnxw8oII+zE0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-left">
+      <a href="index.html" class="logo">Car Crew</a>
+    </div>
+    <nav class="nav-links">
+      <a href="profile.html">Profile</a>
+      <a href="ride.html">Ride</a>
+      <a href="clubs.html">Clubs</a>
+      <a href="explore.html">Explore</a>
+      <a href="leaderboard.html" class="active">Leaderboard</a>
+      <a href="blog.html">Blog</a>
+    </nav>
+  </header>
+  <main>
+    <h1 class="section-title">Leaderboard</h1>
+    <p style="text-align:center; color:var(--muted); max-width:500px; margin:0 auto 1.5rem auto;">
+      See how you stack up against other drivers. Earn more points to climb the
+      ranks!
+    </p>
+    <div class="table-wrapper" style="max-width:600px; margin:0 auto; overflow-x:auto;">
+      <table id="leaderboardTable" style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="background-color: var(--primary); color: var(--light);">
+            <th style="padding:0.75rem; text-align:left; border-top-left-radius: var(--border-radius);">Rank</th>
+            <th style="padding:0.75rem; text-align:left;">Name</th>
+            <th style="padding:0.75rem; text-align:left; border-top-right-radius: var(--border-radius);">Points</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardBody"></tbody>
+      </table>
+    </div>
+  </main>
+  <footer>
+    <p>&copy; 2025 Car Crew Network</p>
+  </footer>
+  <script src="script.js"></script>
+  <script>
+    (function() {
+      const tbody = document.getElementById('leaderboardBody');
+      const leaderboard = window.carCrew.getLeaderboard();
+      const currentUser = window.carCrew.getUser();
+      leaderboard.forEach((entry, index) => {
+        const tr = document.createElement('tr');
+        const isUser = currentUser.name && entry.name === currentUser.name;
+        tr.style.backgroundColor = index % 2 ? '#f9fafb' : '#ffffff';
+        if (isUser) {
+          tr.style.backgroundColor = 'rgba(47, 77, 31, 0.1)';
+        }
+        tr.innerHTML = `
+          <td style="padding:0.75rem; border-bottom:1px solid #e5e7eb;">${index + 1}</td>
+          <td style="padding:0.75rem; border-bottom:1px solid #e5e7eb; font-weight:${isUser ? '600' : '500'}; color:${isUser ? 'var(--primary)' : 'inherit'};">${entry.name}</td>
+          <td style="padding:0.75rem; border-bottom:1px solid #e5e7eb;">${entry.points}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    })();
+  </script>
+</body>
+</html>

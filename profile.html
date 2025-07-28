@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile – Car Crew</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p1BsZtnDOr+j1Y8gJtXlkBrcgzHa7cvqvMHPm7guL+Yry3zMk6M64CFw6Ui/jQKWMJZMXjae2Rnxw8oII+zE0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-left">
+      <a href="index.html" class="logo">Car Crew</a>
+    </div>
+    <nav class="nav-links">
+      <a href="profile.html" class="active">Profile</a>
+      <a href="ride.html">Ride</a>
+      <a href="clubs.html">Clubs</a>
+      <a href="explore.html">Explore</a>
+      <a href="leaderboard.html">Leaderboard</a>
+      <a href="blog.html">Blog</a>
+    </nav>
+  </header>
+  <main>
+    <h1 class="section-title">Your Profile</h1>
+    <div class="profile-grid">
+      <div class="profile-card">
+        <h2>Personal Information</h2>
+        <form id="profileForm">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="Your Name" required />
+          <label for="car">Car Model</label>
+          <input type="text" id="car" name="car" placeholder="Your Car (e.g. Mustang)" required />
+          <button type="submit" class="btn primary">Save Profile</button>
+        </form>
+      </div>
+      <div class="profile-card">
+        <h2>Your Stats</h2>
+        <p><strong>Points:</strong> <span id="points">0</span></p>
+        <p><strong>Clubs Joined:</strong> <span id="clubsCount">0</span></p>
+        <p><strong>Locations Visited:</strong> <span id="visitedCount">0</span></p>
+        <p><strong>Blog Posts:</strong> <span id="blogCount">0</span></p>
+      </div>
+    </div>
+    <h2 class="section-title" style="margin-top:2rem;">Tasks</h2>
+    <div class="tasks-list" id="tasksList"></div>
+  </main>
+  <footer>
+    <p>&copy; 2025 Car Crew Network</p>
+  </footer>
+  <script src="script.js"></script>
+  <script>
+    (function() {
+      const form = document.getElementById('profileForm');
+      const nameInput = document.getElementById('name');
+      const carInput = document.getElementById('car');
+      const pointsEl = document.getElementById('points');
+      const clubsEl = document.getElementById('clubsCount');
+      const visitedEl = document.getElementById('visitedCount');
+      const blogEl = document.getElementById('blogCount');
+      const tasksList = document.getElementById('tasksList');
+      const user = window.carCrew.getUser();
+      // Populate form with existing data
+      nameInput.value = user.name;
+      carInput.value = user.car;
+      // Display stats
+      function refreshStats() {
+        const current = window.carCrew.getUser();
+        pointsEl.textContent = current.points || 0;
+        clubsEl.textContent = current.clubs.length || 0;
+        visitedEl.textContent = current.visited.length || 0;
+        blogEl.textContent = current.blogs.length || 0;
+      }
+      refreshStats();
+      // Save profile handler
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const updated = window.carCrew.getUser();
+        updated.name = nameInput.value.trim();
+        updated.car = carInput.value.trim();
+        window.carCrew.saveUser(updated);
+        refreshStats();
+        renderTasks();
+        alert('Profile saved!');
+      });
+      // Define available tasks
+      const tasks = [
+        {
+          key: 'complete-profile',
+          name: 'Complete your profile',
+          points: 100,
+          // condition is evaluated against the latest user data
+          condition: () => {
+            const u = window.carCrew.getUser();
+            return !!(u.name && u.car);
+          }
+        },
+        {
+          key: 'join-first-club',
+          name: 'Join your first club',
+          points: 50,
+          condition: () => window.carCrew.getUser().clubs.length > 0
+        },
+        {
+          key: 'start-first-ride',
+          name: 'Start your first ride',
+          points: 75,
+          condition: () => window.carCrew.hasCompleted('ride-started')
+        },
+        {
+          key: 'write-first-blog',
+          name: 'Write your first blog post',
+          points: 30,
+          condition: () => window.carCrew.getUser().blogs.length > 0
+        }
+      ];
+      function renderTasks() {
+        tasksList.innerHTML = '';
+        tasks.forEach(task => {
+          const completed = window.carCrew.hasCompleted(task.key);
+          const li = document.createElement('div');
+          li.className = 'task-item';
+          li.innerHTML = `
+            <div class="task-text">
+              <strong>${task.name}</strong>
+              <p>${task.points} pts</p>
+            </div>
+            <button class="btn ${completed ? 'completed' : 'primary'}" ${completed || !task.condition() ? 'disabled' : ''}>${completed ? 'Done' : 'Claim'}</button>
+          `;
+          const btn = li.querySelector('button');
+          btn.addEventListener('click', () => {
+            window.carCrew.addPoints(task.points, task.key);
+            alert(`You earned ${task.points} points!`);
+            refreshStats();
+            renderTasks();
+          });
+          tasksList.appendChild(li);
+        });
+      }
+      renderTasks();
+    })();
+  </script>
+  <style>
+    /* Styles specific to profile page */
+    .profile-grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .profile-card {
+      background-color: var(--light);
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+    }
+    .profile-card h2 {
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .profile-card label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+    }
+    .profile-card input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: var(--border-radius);
+    }
+    .tasks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .task-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--light);
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    .task-text p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    .btn.completed {
+      background-color: #ccc;
+      color: #444;
+      cursor: not-allowed;
+    }
+  </style>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog – Car Crew</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p1BsZtnDOr+j1Y8gJtXlkBrcgzHa7cvqvMHPm7guL+Yry3zMk6M64CFw6Ui/jQKWMJZMXjae2Rnxw8oII+zE0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-left">
+      <a href="index.html" class="logo">Car Crew</a>
+    </div>
+    <nav class="nav-links">
+      <a href="profile.html">Profile</a>
+      <a href="ride.html">Ride</a>
+      <a href="clubs.html">Clubs</a>
+      <a href="explore.html">Explore</a>
+      <a href="leaderboard.html">Leaderboard</a>
+      <a href="blog.html" class="active">Blog</a>
+    </nav>
+  </header>
+  <main>
+    <h1 class="section-title">Your Blog</h1>
+    <p style="text-align:center; color:var(--muted); max-width:600px; margin:0 auto 1rem auto;">
+      Share your driving experiences or let our AI agent craft a personalised post just for you.
+    </p>
+    <div style="text-align:center; margin-bottom:1.5rem;">
+      <button id="generateBlog" class="btn primary">Generate Personal Blog</button>
+    </div>
+    <div class="create-post" style="max-width:600px; margin:0 auto;">
+      <h2 style="color:var(--primary); margin-bottom:0.5rem;">Write Your Own Post</h2>
+      <form id="manualPostForm">
+        <input type="text" id="postTitle" placeholder="Post Title" required style="width:100%; padding:0.5rem; margin-bottom:0.5rem; border:1px solid #d1d5db; border-radius: var(--border-radius);" />
+        <textarea id="postContent" placeholder="Share your story..." required style="width:100%; padding:0.5rem; margin-bottom:0.5rem; border:1px solid #d1d5db; border-radius: var(--border-radius); resize: vertical;"></textarea>
+        <button type="submit" class="btn secondary">Publish Post</button>
+      </form>
+    </div>
+    <h2 class="section-title" style="margin-top:2rem;">Recent Posts</h2>
+    <div id="postsContainer" style="display:flex; flex-direction:column; gap:1.5rem; max-width:700px; margin:0 auto;"></div>
+  </main>
+  <footer>
+    <p>&copy; 2025 Car Crew Network</p>
+  </footer>
+  <script src="script.js"></script>
+  <script>
+    (function() {
+      const postsContainer = document.getElementById('postsContainer');
+      function renderPosts() {
+        postsContainer.innerHTML = '';
+        const user = window.carCrew.getUser();
+        const posts = user.blogs;
+        if (!posts || posts.length === 0) {
+          const empty = document.createElement('p');
+          empty.style.color = 'var(--muted)';
+          empty.style.textAlign = 'center';
+          empty.textContent = 'No blog posts yet.';
+          postsContainer.appendChild(empty);
+          return;
+        }
+        // display posts in reverse chronological order
+        posts.slice().reverse().forEach((post) => {
+          const card = document.createElement('div');
+          card.style.backgroundColor = 'var(--light)';
+          card.style.borderRadius = 'var(--border-radius)';
+          card.style.padding = '1.5rem';
+          card.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.05)';
+          card.innerHTML = `
+            <h3 style="color: var(--primary); font-size: 1.25rem; margin-bottom:0.25rem;">${post.title}</h3>
+            <small style="color: var(--muted);">${new Date(post.date).toLocaleDateString()}</small>
+            <p style="margin-top:0.75rem; line-height:1.6;">${post.content}</p>
+          `;
+          postsContainer.appendChild(card);
+        });
+      }
+      renderPosts();
+      // Generate blog
+      const generateBtn = document.getElementById('generateBlog');
+      generateBtn.addEventListener('click', () => {
+        const { title, content } = window.carCrew.generatePersonalBlog();
+        window.carCrew.createBlogPost(title, content);
+        alert('A personal blog post has been generated for you!');
+        renderPosts();
+      });
+      // Manual post
+      const form = document.getElementById('manualPostForm');
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = document.getElementById('postTitle').value.trim();
+        const content = document.getElementById('postContent').value.trim();
+        window.carCrew.createBlogPost(title, content);
+        alert('Your post has been published! +30 points');
+        form.reset();
+        renderPosts();
+      });
+    })();
+  </script>
+</body>
+</html>
